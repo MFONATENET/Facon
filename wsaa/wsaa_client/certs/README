@@ -1,0 +1,12 @@
+Se utiliza la configuracion por defecto del openssl, agregando
+como requisito el campo serialNumber.
+
+# Generacion de privada
+openssl genrsa -out privkey.pem 1024
+
+# Generacion de requerimiento del certificado en PKCS#10
+openssl req -new -key privkey.pem -out cert.csr -config openssl.cnf
+
+# Generacion del keystore en PKCS#12
+openssl pkcs12 -export -in cert.crt -inkey privkey.pem -name "coqui" -out coqui+store.p12
+

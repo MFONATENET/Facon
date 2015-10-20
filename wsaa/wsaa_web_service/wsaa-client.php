@@ -69,19 +69,31 @@ define("TA","C://xampp/htdocs/TA.xml"); #NUESTRO TICKET DE ACCESO :D
 				  
 	$results = $client_wsaa->loginCms(array('in0'=>$CMS));
 	
-	if (!file_put_contents( TA, $results->loginCmsReturn)){
-		$error()->addError("NO_WRITE_TA",true);
-	}  
+  	if (!file_put_contents( TA, $results->loginCmsReturn)){
+  		$error()->addError("NO_WRITE_TA",true);
+  	}  
+  	
+  	if (is_soap_fault($results))
+  	{
+  		$error()->addError("FALLO WSAA",true);
+  	}
 	
-	if (is_soap_fault($results))
-	{
-		$error()->addError("FALLO WSAA",true);
-	}
-		
-	$ta_xml = simplexml_load_string($results->loginCmsReturn);	
+	$ta_xml = simplexml_load_string($results->loginCmsReturn);
 	$TOKEN = $ta_xml->credentials->token;
-	$SIGN = $ta_xml->credentials->sign;	
-	echo "<p>TOKEN: ".$TOKEN ."</p>";
+  echo $TOKEN;
+	$SIGN = $ta_xml->credentials->sign;
+  $UNIID = $ta_xml->header->uniqueId;
+  $GENDATE = $ta_xml->header->generationTime;
+  $EXPDATE = $ta_xml->header->expirationTime;
+
+  $arr_superSecret = array('operation' => 'success','token' => $TOKEN, 'sign'=> $SIGN, 'uniqueId'  => $UNIID,
+        'generationTime'=> $GENDATE, 'expirationTime'=> $EXPDATE, 'Jipi'=> 'Groso');
+
+  $json_string = json_encode($arr_superSecret);
+  $json_string2 = {"operation":"success","token":{$TOKEN},"sign":{$SIGN},"uniqueId":{$UNIID},"generationTime":{$GENDATE},"expirationTime":{$EXPDATE},"Jipi":"Groso"}
+  header('Content-type: application/json; charset=utf-8');
+  echo $json_string;
   echo "<br>";
-  echo "<p>SIGN: ".$SIGN."</p>";
+  echo "----";
+  echo $json_string2;
 ?>
